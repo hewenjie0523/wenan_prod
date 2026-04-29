@@ -1,0 +1,19 @@
+name: iOS 发布
+
+on:
+    workflow_dispatch:
+        inputs:
+            desc:
+                description: 'Desc'
+                required: true
+                type: string
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            # 检出当前分支
+            -   name: ===✈️✈️✈️ test ===
+                run: echo "hello world"
+

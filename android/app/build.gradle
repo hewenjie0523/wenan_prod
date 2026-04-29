@@ -1,0 +1,113 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'dev.flutter.flutter-gradle-plugin'
+    id 'com.google.gms.google-services'
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+android {
+    compileSdkVersion 36
+    ndkVersion flutter.ndkVersion
+
+    namespace "com.wenan.mobile"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['storePassword']
+            storePassword keyPassword
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            v2SigningEnabled true
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+            // Exclude non-ARM ABIs from final artifacts to avoid 16KB page-size issues
+            excludes += ['**/x86/**', '**/x86_64/**']
+        }
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        //com.alk.pala
+        applicationId "com.ucmetas.wenapp"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 36
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a"
+        }
+    }
+
+    buildTypes {
+        debug {
+            multiDexEnabled true
+            //启用代码混淆
+            minifyEnabled false
+            //混淆规则配置文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            multiDexEnabled true
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    // AIHelp
+    implementation 'net.aihelp:android-aihelp-aar:2.6.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+
+}

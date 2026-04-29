@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "221113424028",
+    "project_id": "wenan-9db3d",
+    "storage_bucket": "wenan-9db3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221113424028:android:ba3214d1011255fa34b559",
+        "android_client_info": {
+          "package_name": "com.ucmetas.wenapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjkEv84IhPSf04pnq4lziFvqZcyOoGhy8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,2 @@
+
+typedef CallBackInterceptor = bool Function();

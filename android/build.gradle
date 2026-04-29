@@ -1,0 +1,143 @@
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
+            println "project: ${project.name} Namespace get: ${project.android.namespace}"
+            def packageName = project.android.namespace ?: project.android.defaultConfig.applicationId ?: project.android.sourceSets.main.manifest.srcFile.text.find(/package="([^"]*)"/) { match, pkg -> pkg } ?: project.group
+            project.android.namespace = packageName
+            println "Namespace set to: ${packageName} for project: ${project.name}"
+
+            // 统一 JVM 目标版本
+            project.android.compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+            if (project.plugins.hasPlugin('org.jetbrains.kotlin.android') || project.plugins.hasPlugin('kotlin-android')) {
+                project.android.kotlinOptions {
+                    jvmTarget = '17'
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+// Ensure Android library modules (including Flutter plugins) have a namespace.
+// If missing, derive it from their AndroidManifest.xml package attribute.
+subprojects { p ->
+    // Kotlin target per module type
+    p.plugins.withId('org.jetbrains.kotlin.android') {
+        // Default to 1.8; adjust for app below
+        p.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { t ->
+            t.kotlinOptions { jvmTarget = '1.8' }
+        }
+    }
+    p.plugins.withId('com.android.library') {
+        p.android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+        }
+        // Ensure library modules compile with Java 17
+        p.tasks.withType(JavaCompile).configureEach { t ->
+            t.sourceCompatibility = '17'
+            t.targetCompatibility = '17'
+        }
+        // Ensure Kotlin in libraries matches Java 17
+        p.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { t ->
+            t.kotlinOptions { jvmTarget = '17' }
+        }
+    }
+    p.plugins.withId('com.android.application') {
+        p.android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+        }
+        // Application uses Java 17 to match available JDK
+        p.tasks.withType(JavaCompile).configureEach { t ->
+            t.sourceCompatibility = '17'
+            t.targetCompatibility = '17'
+        }
+        // Application Kotlin matches Java 17
+        p.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { t ->
+            t.kotlinOptions { jvmTarget = '17' }
+        }
+    }
+    // Remove per-task release overrides to let AGP set bootclasspath correctly
+    // Configure before evaluation to avoid afterEvaluate on already evaluated projects
+    if (p.plugins.hasPlugin('com.android.library')) {
+        p.plugins.withId('com.android.library') {
+            try {
+                def hasNamespace = p.android.hasProperty('namespace') && p.android.namespace
+                if (!hasNamespace) {
+                    def manifest = new File(p.projectDir, 'src/main/AndroidManifest.xml')
+                    if (manifest.exists()) {
+                        def pkg = null
+                        manifest.eachLine { line ->
+                            if (pkg != null) return
+                            def matcher = (line =~ /package\s*=\s*"([^"]+)"/)
+                            if (matcher.find()) {
+                                pkg = matcher.group(1)
+                            }
+                        }
+                        if (pkg) {
+                            p.android.namespace = pkg
+                            logger.lifecycle("Applied namespace '${pkg}' to module '${p.path}' from its AndroidManifest.xml")
+                        }
+                    }
+                }
+            } catch (ignored) {
+                // ignore
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
+}
+
+// After all projects are evaluated, align Kotlin jvmTarget to each module's Java target
+gradle.projectsEvaluated {
+    subprojects { sp ->
+        try {
+            def javaTarget = '1.8'
+            def javaTasks = sp.tasks.withType(JavaCompile)
+            if (!javaTasks.isEmpty()) {
+                def first = javaTasks.iterator().next()
+                if (first?.targetCompatibility) {
+                    javaTarget = first.targetCompatibility.toString()
+                }
+            } else if (sp.hasProperty('android') && sp.android?.compileOptions?.targetCompatibility) {
+                javaTarget = sp.android.compileOptions.targetCompatibility.toString()
+            }
+            sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { t ->
+                t.kotlinOptions { jvmTarget = javaTarget }
+            }
+        } catch (ignored) { }
+    }
+}
