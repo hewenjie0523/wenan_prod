@@ -13,29 +13,25 @@ import 'package:uuid/uuid.dart';
 
 
 class AppConfig {
-  // static const bool inProduction = bool.fromEnvironment("dart.vm.product"); //
-  static const bool inProduction = true;
-  static const String apiUrlOffline = "http://9club.9apples.com/api/";
+  static const bool inProduction = bool.fromEnvironment("dart.vm.product"); //
   static const String apiUrlOnline = "https://api.ucmetas.com/g/req/";
   static String userPrivacy = "$h5Url/privacy.html";
   static String userAgreement = "$h5Url/terms.html";
-  static const String apiUrl = inProduction ? apiUrlOnline : apiUrlOffline;
-  static const String hostUrl = inProduction ? hostOnlineUrl : hostOfflineUrl;
-  static const String h5Url = inProduction ? h5OnlineUrl : h5OnlineUrl;
-  static const String hostOfflineUrl = "http://9club.9apples.com";
+  static const String apiUrl = apiUrlOnline;
+  static const String hostUrl = hostOnlineUrl;
+  static const String h5Url = h5OnlineUrl;
   static const String hostOnlineUrl = "https://api.ucmetas.com";
-  static const String h5OfflineUrl = "https://h5.9apples.com";
   static const String h5OnlineUrl = "https://h5.ucmetas.com";
   static const String h5ChatUrl = "$h5OnlineUrl/chat";
   static const String h5SysMsgUrl = "$h5OnlineUrl/sysmsg";
   static const String h5AnchorOnlineUrl = "$h5OnlineUrl/aonline";
   static const String _defaultSecretKey = "eWlobzpCNGZYc2xjQk9ROFpDOEE1QTQ=";
-  static const String adjustID = "hmqmtpakxlog";
-  static const String adjustPayEvent = "d5w5dy";
-  static const String adjustLoginEvent = "d2mkoq";
+  static const String adjustID = "2jyda8e54d4w";
+  static const String adjustPayEvent = "g19rnt";
+  static const String adjustLoginEvent = "a3pyhe";
   static const bool printSocketLog = false;
-  static const String flurryKey = "JB2Y78GWNPXC738CJTJD";
-  static const String oneSignalAppId = "JB2Y78GWNPXC738CJTJD";
+  static const String flurryKey = "MSS3X6DT3R3999FG6XPX";
+  static const String oneSignalAppId = "89e6353a-210f-46db-9098-9830f3a50e94";
 
   static String get defaultSecretKey {
     String keys = Utils.base64Decode(_defaultSecretKey);
