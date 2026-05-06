@@ -40,8 +40,8 @@ dependencies:
       ref: 'e47fdacfd74311a30892e84c7aa91194f9736d77'
 
   #  Agora Flutter SDK vendored (AGP8 namespace fix)
-#  agora_rtc_engine:
-#    path: third_party/agora_rtc_engine
+  #  agora_rtc_engine:
+  #    path: third_party/agora_rtc_engine
   # Agora Flutter SDK 6.x
   agora_rtc_engine: 6.5.3
   #  权限处理插件依赖项
