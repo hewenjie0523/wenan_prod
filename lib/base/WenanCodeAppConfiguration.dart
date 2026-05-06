@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:android_id/android_id.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wenan/base/WenanCodeApplication.dart';
 import 'package:wenan/base/WenanCodeSpHelper.dart';
 import 'package:wenan/http/CommonApi.dart';
 import 'package:wenan/utils/WenanCodelog.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:android_id/android_id.dart';
 import 'package:wenan/utils/WenanCodeutils.dart';
-import 'package:uuid/uuid.dart';
 
 
 class AppConfig {
@@ -40,15 +40,10 @@ class AppConfig {
 
   static PackageInfo? _packageInfo;
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
-
   static AndroidDeviceInfo? _androidInfo;
-
   static IosDeviceInfo? _iosInfo;
-
   static WebBrowserInfo? _webBrowserInfo;
-
   static bool inited = false;
-
   static String? deviceId;
 
   //既便被调用多次，也不影响数据正确性，比阻塞应用初始化要好，但现在服务端接口依赖包名，必须阻塞初始化了
@@ -69,7 +64,7 @@ class AppConfig {
       }
       if (Platform.isIOS) {
         _iosInfo = await _deviceInfo.iosInfo;
-        deviceId =  _iosInfo?.identifierForVendor ?? "";
+        deviceId = _iosInfo?.identifierForVendor ?? "";
       }
       deviceId = await _safeDeviceId(deviceId);
       _webBrowserInfo = await _deviceInfo.webBrowserInfo;
@@ -158,7 +153,6 @@ class AppConfig {
   //   } catch (_) {}
   //   return "";
   // }
-
   static String get userAgent {
     return "$browserUserAgent $packageName/$appVersion $roomInfo";
   }
@@ -179,7 +173,6 @@ class AppConfig {
     if (!Utils.isEmpty(cachedConfig)) {
       return AppConfigRsp.fromJson(jsonDecode(cachedConfig!));
     }
-
     return null;
   }
 
